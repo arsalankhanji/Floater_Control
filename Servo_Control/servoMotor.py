@@ -27,12 +27,22 @@ class ServoMotor:
         self.used = True
         self.width = 0 # Pulse width of PWM .Range is (MIN_WIDTH, MAX_WIDTH)
         print("Servo Class Initialized...")
-    
+
+    def limitPulseWidth(self,pulseWidth):
+        if pulseWidth < self.MIN_WIDTH:
+            pulseWidth = self.MIN_WIDTH
+        elif pulseWidth > self.MAX_WIDTH:
+            pulseWidth = self.MAX_WIDTH
+        else:
+            pulseWidth = pulseWidth
+        return pulseWidth
+
     def stopServo(self):
         self.pi.set_servo_pulsewidth(self.G, 0)
         self.pi.stop()    
 
     def moveServo(self, pulseWidth):
+        pulseWidth = self.limitPulseWidth(pulseWidth)
         self.pi.set_servo_pulsewidth(self.G, pulseWidth)
 
 if __name__ == '__main__':     # Program entrance

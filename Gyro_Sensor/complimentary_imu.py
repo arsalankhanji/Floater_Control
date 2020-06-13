@@ -56,7 +56,7 @@ def get_imu(bx, by, bz):
     Phi = phi_hat*180.0/pi
     Theta = theta_hat*180.0/pi
     
-    return Phi , Theta
+    return Phi , Theta , p , q
 
 
 if __name__ == '__main__':     # Program entrance
