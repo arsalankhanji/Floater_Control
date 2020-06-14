@@ -5,11 +5,11 @@ import numpy as np
 
 style.use('ggplot')
 
-time , Phi , p , dt , servoAPulseWidth = np.loadtxt('testData.csv', unpack = True , delimiter = ',')
+time , Phi , p , dt , servoAPulseWidth , PhiFilt = np.loadtxt('testData.csv', unpack = True , delimiter = ',')
 
 fig , axs = plt.subplots(4 , sharex = True)
 fig.suptitle('Floater Data Log')
-axs[0].plot(time,Phi)
+axs[0].plot(time,Phi,time,PhiFilt)
 axs[0].set( ylabel = 'Phi' )
 axs[1].plot(time,p)
 axs[1].set( ylabel = 'p' )
