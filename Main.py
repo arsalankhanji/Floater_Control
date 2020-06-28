@@ -4,9 +4,15 @@ from time import sleep, time
 import csv
 from subprocess import PIPE, Popen
 
+########### NOTES ############################
+# Reference for programming the scale settings on
+# the MPU-6050
+# https://github.com/nickcoutsos/MPU-6050-Python/blob/master/MPU6050.py
+###############################################
+
 sleep_time = 0.0 #0.0001
 
-[bx, by, bz] = Cimu.init_imu() 
+[bx, by, bz] = Cimu.init_imu()
 
 servoA = servoMotor.ServoMotor(18)
 servoB = servoMotor.ServoMotor(17)
@@ -24,6 +30,7 @@ Kd1 = 0
 Kp2 = -250
 Ki2 = -50
 Kd2 = 0
+errorLowSaturation = 0.5
 
 # Initialize data logger
 logFile = open("data/testData.csv","w",newline="")
@@ -82,6 +89,8 @@ try:
 
         # INNER CONTROL LOOP - Error Signal for Rate Controls
         errorPhiRate = phiRateSetpoint - pFilt # error = setpoint - measured_value
+        if ( (errorPhiRate < errorLowSaturation) & (errorPhiRate > -errorLowSaturation) ):
+            errorPhiRate = 0.0
         integralPhiRate = integralPhiRate + errorPhiRate*dt
         derivativePhiRate = (errorPhiRate - previous_errorPhiRate)/dt
         outputPhiRate = Kp2*errorPhiRate + Ki2*integralPhiRate + Kd2*derivativePhiRate
@@ -91,7 +100,7 @@ try:
         pulseWidthA = mean + outputPhiRate - 125
         #servoA.moveServo(mean + outputPhiRate - 125) #Phi*10)
         servoA.moveServo(pulseWidthA)
-        servoB.moveServo(mean + 0*Theta*10 + 120)
+        servoB.moveServo(mean + 0*Theta*10 + 80)
 
         #print("errors >> Kp =" + str(round(outputPhiRate,2)) + " Ki = " + str(round(integralPhiRate,2)) + " Kd = " + str(round(derivativePhiRate,2)) )
         #print("Phi = " + str(round(Phi,2)) + " p = " + str(round(p,2)) + " dt = " + str(round(dt,5)) )

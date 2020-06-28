@@ -1,6 +1,6 @@
 
 # Implementation of Complimentary Filter for MPU-6050 6-DOF IMU
-# 
+#
 # Author: Philip Salmony [pms67@cam.ac.uk]
 # Date: 4 August 2018
 
@@ -31,37 +31,37 @@ def init_imu():
     return bx, by, bz
 
 def get_imu(bx, by, bz):
-    
+
     global start_time, phi_hat, theta_hat
     dt = time() - start_time
     start_time = time()
-    
+
     # Get estimated angles from raw accelerometer data
     [phi_hat_acc, theta_hat_acc] = imu.get_acc_angles()
-    
+
     # Get raw gyro data and subtract biases
     [p, q, r] = imu.get_gyro()
     p -= bx
     q -= by
     r -= bz
-    
+
     # Calculate Euler angle derivatives
     phi_dot = p + sin(phi_hat) * tan(theta_hat) * q + cos(phi_hat) * tan(theta_hat) * r
     theta_dot = cos(phi_hat) * q - sin(phi_hat) * r
-    
+
     # Update complimentary filter
     phi_hat = (1 - alpha) * (phi_hat + dt * phi_dot) + alpha * phi_hat_acc
     theta_hat = (1 - alpha) * (theta_hat + dt * theta_dot) + alpha * theta_hat_acc
 
     Phi = phi_hat*180.0/pi
     Theta = theta_hat*180.0/pi
-    
+
     return Phi , Theta , p , q
 
 
 if __name__ == '__main__':     # Program entrance
-    
-    [bx, by, bz] = init_imu() 
+
+    [bx, by, bz] = init_imu()
 
     while True:
         [Phi , Theta ] = get_imu(bx, by, bz)
