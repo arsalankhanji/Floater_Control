@@ -51,20 +51,25 @@ output = output.decode('utf-8')
 print(output)
 
 # EMA Filter Alpha
-alphaA = 0.1
-alphaB = 0.4
+alphaA = 0.1 # Phi Filter
+alphaB = 0.4 # p Filter
 
 try:
+    currentTime = time() - absStartTime
     previous_errorPhi = 0
     previous_errorPhiRate = 0
     integralPhi = 0
     integralPhiRate = 0
-    previousTime = time() - absStartTime
     PhiFilt_old = 0
     pFilt_old = 0
     sleep(0.0) 
 
     while True:
+
+        # Computing time delta
+        previousTime = currentTime
+        currentTime = time() - absStartTime
+        dt = currentTime - previousTime
 
         # Getting Attitude of Floater
         [Phi , Theta , p , q ] = Cimu.get_imu(bx, by, bz) # Phi about x  &   Theta about y
@@ -74,10 +79,6 @@ try:
         pFilt = (1 - alphaB)*pFilt_old + alphaB*p
         PhiFilt_old = PhiFilt
         pFilt_old = pFilt
-
-        # Computing time delta
-        currentTime = time() - absStartTime
-        dt = currentTime - previousTime
 
         # OUTER CONTROL LOOP - Error signal for Attitude Control
         errorPhi = phiSetpoint - PhiFilt
@@ -105,7 +106,6 @@ try:
         #print("errors >> Kp =" + str(round(outputPhiRate,2)) + " Ki = " + str(round(integralPhiRate,2)) + " Kd = " + str(round(derivativePhiRate,2)) )
         #print("Phi = " + str(round(Phi,2)) + " p = " + str(round(p,2)) + " dt = " + str(round(dt,5)) )
         csvObj.writerow([  round(currentTime,2) , round(Phi,2) , round(p,2) , round(dt,5) , round(pulseWidthA,0) , round(PhiFilt,2) , round(pFilt,2) ])
-        previousTime = currentTime
 
         sleep(sleep_time)
 
